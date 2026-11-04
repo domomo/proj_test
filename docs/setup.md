@@ -1,12 +1,13 @@
 # 환경 설정과 배포 안내
 
-## 프로젝트 루트에서 서버 실행
+## 로컬 서버 실행
 
-PowerShell 현재 위치를 `CulturePick`으로 두고 두 터미널에서 실행합니다. `.venv`가 활성화되어 있고 루트 `requirements.txt`의 패키지가 설치되어 있어야 합니다.
+PowerShell 현재 위치를 `CulturePick`으로 두고 두 터미널에서 시작합니다. 루트 `.venv`가 준비되어 있고 루트 `requirements.txt`의 패키지가 설치되어 있어야 합니다.
 
 ```powershell
 # 터미널 1: 백엔드
 .\.venv\Scripts\Activate.ps1
+cd backend
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
@@ -15,7 +16,7 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000
 npm run dev
 ```
 
-브라우저 접속 주소는 `http://localhost:5173`, API 문서는 `http://localhost:8000/docs`입니다. 루트 `app` 패키지가 `backend/app`의 모듈을 읽으므로 `cd backend`나 `--app-dir`가 필요하지 않습니다. 설정 파일은 기존대로 `backend/.env`와 `frontend/.env`를 사용합니다. 패키지가 없다면 루트에서 `python -m pip install -r requirements.txt`, `npm --prefix frontend ci`를 각각 한 번 실행합니다. 빌드 화면은 루트에서 `npm run build` 후 `npm run preview`로 실행합니다.
+브라우저 접속 주소는 `http://localhost:5173`, API 문서는 `http://localhost:8000/docs`입니다. 백엔드 코드는 `backend/app`에서 관리하며 서버와 `python -m app.tasks.*` 명령은 `backend` 폴더에서 실행합니다. 프로젝트 루트에서 서버를 실행하려면 `uvicorn --app-dir backend app.main:app --host 0.0.0.0 --port 8000`을 사용하세요. 설정 파일은 `backend/.env`와 `frontend/.env`를 사용합니다. 패키지가 없다면 루트에서 `python -m pip install -r requirements.txt`, `npm --prefix frontend ci`를 각각 한 번 실행합니다. 빌드 화면은 루트에서 `npm run build` 후 `npm run preview`로 실행합니다.
 
 ## 수정해야 하는 파일 한눈에 보기
 
@@ -59,8 +60,9 @@ REFUNDS_ENABLED=false
 Alembic은 임시로 마이그레이션 계정의 DATABASE_URL로 실행한 뒤 앱 계정으로 되돌립니다. `.env` 대신 프로세스 환경변수로 주입해도 됩니다. 실제 스키마는 **Alembic만** 적용하고 `schema.sql`을 별도로 실행하지 않습니다.
 
 ```powershell
-python -m alembic -c backend/alembic.ini upgrade head
-python -m alembic -c backend/alembic.ini check
+# backend 폴더에서 실행
+python -m alembic upgrade head
+python -m alembic check
 python -m app.tasks.seed # 개발용 가상 콘텐츠만 선택적으로 추가
 ```
 
@@ -100,6 +102,7 @@ Vite 변수는 빌드 시 고정되므로 `.env` 변경 후 **다시 빌드·배
 [문화포털 사용 가이드](https://www.culture.go.kr/portal/main/contents.do?menuNo=200155)를 따라 공공데이터포털에서 ‘한눈에보는문화정보 조회서비스’를 활용 신청하고 키를 발급받습니다. `CULTURE_API_KEY`에 Decoding 키를 넣는 것을 권장합니다(Encoded 키도 한 번 디코딩 후 httpx가 인코딩).
 
 ```powershell
+# backend 폴더에서 실행
 python -m app.tasks.collect --days 90 --pages 5
 # 전용 수집 프로세스로 6시간마다 실행
 python -m app.tasks.collect --days 90 --pages 5 --interval 21600
@@ -120,7 +123,7 @@ PortOne 콘솔에 **백엔드의 공개 HTTPS 주소 + `/api/v1/payments/webhook
 ## 5. 서버 3대 배포
 
 1. DB 서버: MariaDB, 내부 바인딩, 계정·방화벽·정기 백업. 마이그레이션 적용.
-2. 백엔드 서버: Python 환경과 `backend/.env`. Uvicorn `--host 0.0.0.0 --port 8000`로 실행. 브라우저 직접 호출용 TLS/인증서와 공개 DNS는 서버 운영 환경에서 구성. Dockerfile은 앱 실행만 하며 마이그레이션을 자동 수행하지 않습니다.
+2. 백엔드 서버: Python 환경과 `backend/.env`. `backend` 폴더에서 `uvicorn app.main:app --host 0.0.0.0 --port 8000`으로 실행. 브라우저 직접 호출용 TLS/인증서와 공개 DNS는 서버 운영 환경에서 구성. Dockerfile은 앱 실행만 하며 마이그레이션을 자동 수행하지 않습니다.
 3. 프론트엔드 서버: 실제 백엔드 주소로 `npm ci && npm run build`한 `frontend/dist/` 내용을 Nginx 정적 경로에 배치. `infra/frontend/nginx.conf`의 root/server_name/TLS를 적용.
 
 기본 예시 root는 `/var/www/culturepick`입니다. 다른 경로에 복사하면 Nginx `root`도 함께 수정합니다. 현재 빌드는 도메인 루트(`/`) 배포를 기준으로 합니다. 하위 경로 배포 시 Vite `base`, BrowserRouter `basename`, 결제 `redirectUrl`, 포스터 경로를 함께 조정해야 합니다.

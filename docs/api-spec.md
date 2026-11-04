@@ -1,6 +1,6 @@
 # CulturePick API 계약
 
-기본 경로 `/api/v1`. JSON, 날짜 `YYYY-MM-DD`, 시각 UTC ISO 8601, 금액 원화 정수. 자동 생성 OpenAPI(`/openapi.json`, `/docs`)가 필드 계약의 기준이며 `docs/openapi.json`은 생성한 스냅샷이다. `python -m app.tasks.export_contract`로 갱신한다.
+기본 경로 `/api/v1`. JSON, 날짜 `YYYY-MM-DD`, 시각 UTC ISO 8601, 금액 원화 정수. 자동 생성 OpenAPI(`/openapi.json`, `/docs`)가 필드 계약의 기준이며 `docs/openapi.json`은 생성한 스냅샷이다. `backend` 폴더에서 `python -m app.tasks.export_contract`로 갱신한다.
 
 인증은 `Authorization: Bearer <token>`. 가입·로그인에서 발급하며 서버에는 SHA-256 해시만 저장한다. 세션은 7일 만료, 로그아웃 즉시 폐기. 브라우저는 sessionStorage에 보관한다. 운영은 HTTPS 필수. 인증 실패 401, 권한/정책 제한 403, 없는 자원 404, 상태 충돌 409, 입력 검증 422, 외부 서비스 실패 502, 설정/DB 미준비 503. 오류는 `{ "detail": "설명" }` 형식(입력 검증은 FastAPI의 detail 배열).
 

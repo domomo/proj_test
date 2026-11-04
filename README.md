@@ -10,7 +10,7 @@
 
 자세한 DB 이름·계정 권한·주소·키·배포 경로와 수정 위치는 **[환경 설정 안내](docs/setup.md)** 에 정리했습니다. 실제 비밀번호는 `.env`에만 입력하고 공유하지 마세요.
 
-아래 명령은 프로젝트 루트의 PowerShell에서 실행합니다. Python 3.14 / Node 24 / MariaDB 11.4로 검증했습니다.
+아래 명령은 프로젝트 루트의 PowerShell에서 시작하고, 백엔드 실행 전에 `backend` 폴더로 이동합니다. Python 3.14 / Node 24 / MariaDB 11.4로 검증했습니다.
 
 ```powershell
 python -m venv .venv
@@ -20,12 +20,13 @@ Copy-Item backend/.env.example backend/.env
 Copy-Item frontend/.env.example frontend/.env
 # 위 .env의 플레이스홀더를 docs/setup.md에 따라 교체하고 DB/계정을 먼저 생성합니다.
 
-python -m alembic -c backend/alembic.ini upgrade head
+cd backend
+python -m alembic upgrade head
 python -m app.tasks.seed   # 선택: 가상 샘플 12개, 계정 생성 없음
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-다른 터미널:
+다른 터미널에서는 프로젝트 루트에서 실행합니다:
 
 ```powershell
 npm --prefix frontend ci
@@ -34,7 +35,7 @@ npm run dev
 
 프론트엔드 `http://localhost:5173`, Swagger `http://localhost:8000/docs`. 브라우저가 백엔드에 직접 요청하며 Vite/Nginx API 프록시는 없습니다. 회원가입 후 바로 체험할 수 있습니다.
 
-두 서버 모두 프로젝트 루트에서 실행합니다. 루트 `app/`은 `backend/app/`의 같은 모듈을 불러오는 진입 패키지이며, `.env`는 계속 `backend/.env`에서 읽습니다. 프론트엔드 루트 npm 명령은 `frontend/`의 스크립트를 실행합니다. 이미 환경 설정을 마쳤다면 첫 터미널에서 가상환경 활성화 후 uvicorn을, 둘째 터미널에서 `npm run dev`만 실행하면 됩니다.
+백엔드 코드는 `backend/app/`에서 관리하며, 백엔드 서버와 `python -m app.tasks.*` 명령은 `backend` 폴더에서 실행합니다. `.env`는 `backend/.env`에서 읽습니다. 프로젝트 루트에서 백엔드를 실행하려면 `uvicorn --app-dir backend app.main:app --host 0.0.0.0 --port 8000`을 사용하세요. 프론트엔드 루트 npm 명령은 `frontend/`의 스크립트를 실행합니다.
 
 ## 이 작업 환경에서 준비한 실행 상태
 
@@ -70,4 +71,4 @@ npm run build
 - [결제 명세와 미확정 정책](docs/payment-spec.md), [데이터 품질·수집](docs/data-quality.md)
 - [환경·배포 설정](docs/setup.md), [검증 기록](docs/testing.md)
 
-`python -m app.tasks.export_contract`는 OpenAPI를, `python -m app.tasks.export_schema`는 참고 DDL을 재생성합니다(프로젝트 루트에서 실행 가능).
+`backend` 폴더에서 `python -m app.tasks.export_contract`는 OpenAPI를, `python -m app.tasks.export_schema`는 참고 DDL을 재생성합니다.
