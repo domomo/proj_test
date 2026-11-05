@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { api } from '../api/client'
@@ -11,19 +11,20 @@ export function AuthDialog() {
   const [register, setRegister] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  useEffect(() => { if (session.authOpen) { setRegister(false); setError('') } }, [session.authOpen])
   const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault(); setBusy(true); setError('')
     const data = Object.fromEntries(new FormData(e.currentTarget))
     try {
       const result = await api<{ access_token: string; user: User }>(`/auth/${register ? 'register' : 'login'}`, { method: 'POST', body: JSON.stringify(data) })
-      session.acceptAuth(result.access_token, result.user)
+      session.acceptAuth(result.access_token, result.user, register ? 'register' : 'login')
       session.toast(register ? '가입을 완료했어요. 취향을 알려 주세요!' : '다시 만나 반가워요.')
     } catch (e) { setError((e as Error).message) } finally { setBusy(false) }
   }
   return <Dialog open={session.authOpen} close={session.closeAuth} title={register ? '회원가입' : '로그인'}>
     <div className="dialog-symbol">cp.</div><h2>{register ? '취향이 쌓이는 문화생활' : '나의 취향을 이어서'}</h2>
     <p className="muted">{register ? '마음에 드는 순간을 모으고, 새로운 문화를 만나세요.' : '찜한 콘텐츠와 나를 위한 추천을 만나보세요.'}</p>
-    <div className="auth-tabs"><button className={!register ? 'selected' : ''} onClick={() => { setRegister(false); setError('') }}>로그인</button><button className={register ? 'selected' : ''} onClick={() => { setRegister(true); setError('') }}>회원가입</button></div>
+    <div className="auth-tabs"><button className={!register ? 'selected' : ''} disabled={busy} onClick={() => { setRegister(false); setError('') }}>로그인</button><button className={register ? 'selected' : ''} disabled={busy} onClick={() => { setRegister(true); setError('') }}>회원가입</button></div>
     <form onSubmit={submit} className="stack">
       {register && <label>이름<input name="name" autoComplete="name" minLength={2} maxLength={40} required placeholder="문화생활에서 사용할 이름" /></label>}
       <label>이메일<input name="email" type="email" autoComplete="email" maxLength={254} required placeholder="you@example.com" /></label>

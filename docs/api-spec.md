@@ -9,7 +9,7 @@
 | GET | /health, /ready | 프로세스 / MariaDB 연결 상태 |
 | POST | /auth/register, /auth/login | 회원 생성 / 세션 발급 |
 | POST | /auth/logout | 현재 세션 폐기 |
-| GET, PATCH | /users/me | 프로필 조회 / 이름 변경 |
+| GET, PATCH | /users/me | 본인 프로필 조회 / 이름·성별·나이·거주지·직업·MBTI 부분 수정 |
 | PUT | /surveys/me | categories, tags 설문 교체 |
 | GET | /contents | q, category, region, free_only, from_date, to_date, sort, page, size 검색 |
 | GET | /contents/{id} | 상세, 조회 자체는 상태 변경 없음 |
@@ -33,3 +33,21 @@
 주문 Idempotency-Key는 사용자별 유일하며 같은 키로 다른 상품/수량을 보내면 409. 결제는 샘플 콘텐츠에 대해 금지. 클라이언트 금액을 받지 않는다. 웹훅 수신 성공은 서버 검증/트랜잭션 완료 후 반환. 알 수 없는 이벤트 종류는 200으로 무시, 미등록 주문은 200으로 무시. 외부 장애 시 502로 재시도를 유도한다.
 
 인증 관련 요청은 프로세스당 IP 기준 1분 20회로 제한한다. 다중 Uvicorn worker 운영 시 공유 rate limiter 도입 필요. CORS는 명시 출처만 허용하며 Vite/Nginx 프록시를 사용하지 않는다.
+
+## 프로필과 취향 설정
+
+`GET /users/me`와 인증·설문 응답의 `user`에는 `gender`, `age`, `age_recorded_at`, `residence`, `occupation`, `mbti`가 포함된다. 기존 회원과 미입력 항목은 `null`이다. 이 정보는 본인 인증 응답에서만 제공하며 공개 리뷰·콘텐츠 응답에는 포함하지 않는다.
+
+`PATCH /users/me`는 전달한 필드만 수정한다. `name`은 공백 제거 후 2–40자이며 `null`로 지울 수 없다. 나머지 입력 항목은 `null`로 삭제할 수 있다. 이메일·회원 ID·설문 완료 여부 등 허용하지 않은 필드를 전달하면 422다.
+
+| 필드 | 입력 형식 |
+|---|---|
+| gender | `female`, `male`, `other`, `prefer_not_to_say` 중 하나 또는 `null` |
+| age | 만 나이 정수 0–120 또는 `null`. 문자열·소수·불리언 불허 |
+| residence | 서울, 부산, 대구, 인천, 광주, 대전, 울산, 세종, 경기, 강원, 충북, 충남, 전북, 전남, 경북, 경남, 제주, 해외 중 하나 또는 `null` |
+| occupation | 앞뒤 공백 제거 후 최대 80자 또는 `null`. 빈 문자열은 `null` |
+| mbti | 16개 MBTI 코드 또는 `null`. 소문자·앞뒤 공백은 정규화하고 빈 문자열은 `null` |
+
+`age_recorded_at`은 나이를 입력한 UTC 시각이며 서버가 관리한다. 이름 등 다른 항목만 바꾸면 유지하고 나이를 삭제하면 함께 삭제한다. 나이는 이 시각에 입력한 값으로, 자동으로 증가하지 않는다.
+
+프론트엔드는 회원가입 성공 직후에만 초기 취향 설문을 자동 표시한다. 로그인과 세션 복원 시에는 설문 미완료 여부와 관계없이 자동 표시하지 않는다. 이후 설정·수정은 `/mypage/preferences`에서 `PUT /surveys/me`로 처리하며 같은 프로필을 유지한다. `/mypage`의 기본 페이지는 나의 정보이고 찜·최근 조회·취향·이용 및 결제 내역은 각각 별도 경로를 사용한다.
