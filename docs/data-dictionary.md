@@ -3,6 +3,11 @@
 | 테이블 | 주요 필드 | 의미 |
 |---|---|---|
 | users | id, email, name, password_hash | 이메일 소문자 정규화·유일, scrypt 개별 salt |
+| users | gender | 선택 입력. female/male/other/prefer_not_to_say. 미입력 NULL과 응답 거부를 구분 |
+| users | age, age_recorded_at | 선택 입력한 만 나이 0–120, 해당 입력 UTC 시각. 자동 나이 증가 없음. 나이 삭제 시 시각도 NULL |
+| users | residence | 시·도 단위 17개 표준 지역명 또는 해외. 상세 주소는 수집하지 않음. 미입력 NULL |
+| users | occupation | 앞뒤 공백 제거한 직업 문자열, 최대 80자. 미입력 NULL |
+| users | mbti | 대문자 16개 MBTI 코드 중 하나. 미입력 NULL |
 | users | categories, tags, survey_completed | 현재 설문 JSON 배열과 완료 여부 |
 | auth_sessions | token_hash, user_id, expires_at | 원본 토큰 저장 금지, 7일 만료 |
 | contents | source, source_id | 공급자별 중복 식별자 |
@@ -22,3 +27,5 @@
 | webhook_receipts | event_id, payment_id, received_at | 처리된 서명 웹훅 중복 식별자 |
 
 모든 정수 PK는 MariaDB AUTO_INCREMENT. 날짜는 DATE, 시각은 UTC DATETIME이며 API는 UTC `Z` 표기로 내보낸다. 가격은 원화 정수이고 소수·음수 주문을 허용하지 않는다. 참조 SQL 및 인덱스는 database/mariadb에 둔다.
+
+프로필 추가 정보는 향후 추천·분석에 활용할 현재 사용자 속성이며 `users`의 개별 컬럼으로 저장한다. 현재 추천 점수 산정은 기존 설문·조회·찜을 사용한다. 성별·MBTI 등은 자동 추론하지 않고 본인이 입력한 값만 저장한다. 프로필 정보는 인증된 본인에게만 응답하고 행동 이벤트 원본에 복제하지 않는다.

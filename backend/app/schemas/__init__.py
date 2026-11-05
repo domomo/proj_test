@@ -3,6 +3,7 @@ from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, field_serializer
+from app.schemas.profile import Gender, ProfileInput, Residence
 
 CATEGORIES = ('전시', '뮤지컬', '연극', '음악', '무용', '축제')
 Category = Literal['전시', '뮤지컬', '연극', '음악', '무용', '축제']
@@ -26,11 +27,6 @@ class LoginInput(BaseModel):
     password: str = Field(min_length=1, max_length=128)
 
 
-class ProfileInput(BaseModel):
-    name: str = Field(min_length=2, max_length=40)
-    _clean = field_validator('name')(RegisterInput.clean_name.__func__)
-
-
 class SurveyInput(BaseModel):
     categories: list[Category] = Field(min_length=1, max_length=6)
     tags: list[str] = Field(default_factory=list, max_length=10)
@@ -48,9 +44,19 @@ class UserOut(BaseModel):
     id: int
     email: str
     name: str
+    gender: Gender | None
+    age: int | None
+    age_recorded_at: datetime | None
+    residence: Residence | None
+    occupation: str | None
+    mbti: str | None
     categories: list[str]
     tags: list[str]
     survey_completed: bool
+
+    @field_serializer('age_recorded_at')
+    def serialize_age_time(self, value):
+        return value.replace(tzinfo=timezone.utc).isoformat().replace('+00:00', 'Z') if value else None
 
 
 class AuthOut(BaseModel):

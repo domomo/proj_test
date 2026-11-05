@@ -168,3 +168,21 @@ ALTER TABLE payment_history ADD COLUMN provider_transaction_id VARCHAR(200) NOT 
 
 UPDATE alembic_version SET version_num='30943449ef19' WHERE alembic_version.version_num = '08ee866a73c5';
 
+-- Running upgrade 30943449ef19 -> 65e5c5f31b9a
+
+ALTER TABLE users ADD COLUMN gender VARCHAR(20);
+
+ALTER TABLE users ADD COLUMN age INTEGER;
+
+ALTER TABLE users ADD COLUMN age_recorded_at DATETIME;
+
+ALTER TABLE users ADD COLUMN residence VARCHAR(30);
+
+ALTER TABLE users ADD COLUMN occupation VARCHAR(80);
+
+ALTER TABLE users ADD COLUMN mbti VARCHAR(4);
+
+ALTER TABLE users ADD CONSTRAINT ck_user_age CHECK (age BETWEEN 0 AND 120);
+
+UPDATE alembic_version SET version_num='65e5c5f31b9a' WHERE alembic_version.version_num = '30943449ef19';
+

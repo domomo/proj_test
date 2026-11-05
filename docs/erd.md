@@ -3,6 +3,20 @@
 ```mermaid
 erDiagram
     users ||--o{ auth_sessions : authenticates
+    users {
+        int id PK
+        string email UK
+        string name
+        string gender "nullable"
+        int age "nullable, 0-120"
+        datetime age_recorded_at "nullable, UTC"
+        string residence "nullable"
+        string occupation "nullable"
+        string mbti "nullable"
+        json categories
+        json tags
+        boolean survey_completed
+    }
     users ||--o{ bookmarks : saves
     contents ||--o{ bookmarks : saved
     users ||--o{ reviews : writes

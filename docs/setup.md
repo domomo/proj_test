@@ -66,6 +66,8 @@ python -m alembic check
 python -m app.tasks.seed # 개발용 가상 콘텐츠만 선택적으로 추가
 ```
 
+프로필 추가 정보 기능을 업데이트한 환경도 백엔드 실행 전에 `python -m alembic upgrade head`를 적용합니다. `65e5c5f31b9a` 마이그레이션은 기존 회원을 유지하면서 선택 프로필 컬럼과 나이 범위 제약을 추가합니다. 기존 회원의 추가 프로필 항목은 미입력(`NULL`)으로 시작합니다.
+
 DB를 Docker로 실행한다면 DB 서버에서 `infra/db/.env.example`을 `.env`로 복사한 뒤 채우고 `docker compose -f infra/db/compose.yaml up -d`를 실행합니다. compose의 초기 DB/사용자 설정은 **비어 있는 볼륨의 첫 실행에만** 적용됩니다. 기존 DB의 계정·암호는 SQL로 변경하세요. compose가 생성하는 개발용 사용자는 해당 DB 전체 권한을 가지므로 운영에서는 권한 SQL의 앱/마이그레이션 분리를 적용합니다.
 
 MongoDB는 미도입입니다. 따라서 임시 주소 `100.100.100.140`으로 연결하거나 계정을 만들 필요가 없습니다. 추후 합의하면 행동 이벤트 전달·중복·재시도 정책을 먼저 설계합니다.

@@ -39,6 +39,12 @@ class Store:
     def user(self, user_id: int):
         return self.db.get(User, user_id)
 
+    def update_profile(self, user, values):
+        for field, value in values.items():
+            setattr(user, field, value)
+        self.db.flush()
+        return user
+
     def contents(self, *, q='', category=None, region=None, free_only=False, from_date=None,
                  to_date=None, include_ended=False, sort='latest', page=1, size=24):
         stmt = select(Content)

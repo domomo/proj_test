@@ -23,5 +23,5 @@ export function PaymentResult() {
     return () => { active = false }
   }, [paymentId, code, s.ready, s.user, nonce])
   if (s.ready && !s.user) return <div className="container page-content"><LoginGate title="로그인 후 결제 결과를 확인해 주세요" /></div>
-  return <div className="container page-content"><div className="empty-state"><h1>결제 결과 확인</h1><p role="status">{message}</p>{paymentId && !code && <button className="button outline" disabled={busy} onClick={() => setNonce(n => n + 1)}>다시 확인</button>}<Link to="/mypage?tab=payments" className="button primary">결제 내역으로 이동</Link></div></div>
+  return <div className="container page-content"><div className="empty-state"><h1>결제 결과 확인</h1><p role="status">{message}</p>{paymentId && !code && <button className="button outline" disabled={busy} onClick={() => setNonce(n => n + 1)}>다시 확인</button>}<Link to="/mypage/payments" className="button primary">결제 내역으로 이동</Link></div></div>
 }

@@ -1511,17 +1511,108 @@
       "ProfileInput": {
         "properties": {
           "name": {
-            "type": "string",
-            "maxLength": 40,
-            "minLength": 2,
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Name"
+          },
+          "gender": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "female",
+                  "male",
+                  "other",
+                  "prefer_not_to_say"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gender"
+          },
+          "age": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 120.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Age"
+          },
+          "residence": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "서울",
+                  "부산",
+                  "대구",
+                  "인천",
+                  "광주",
+                  "대전",
+                  "울산",
+                  "세종",
+                  "경기",
+                  "강원",
+                  "충북",
+                  "충남",
+                  "전북",
+                  "전남",
+                  "경북",
+                  "경남",
+                  "제주",
+                  "해외"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Residence"
+          },
+          "occupation": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Occupation"
+          },
+          "mbti": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[EI][NS][FT][JP]$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mbti"
           }
         },
+        "additionalProperties": false,
         "type": "object",
-        "required": [
-          "name"
-        ],
-        "title": "ProfileInput"
+        "title": "ProfileInput",
+        "description": "Omitted fields stay unchanged; null clears an optional demographic field."
       },
       "RegisterInput": {
         "properties": {
@@ -1660,6 +1751,99 @@
             "type": "string",
             "title": "Name"
           },
+          "gender": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "female",
+                  "male",
+                  "other",
+                  "prefer_not_to_say"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gender"
+          },
+          "age": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Age"
+          },
+          "age_recorded_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Age Recorded At"
+          },
+          "residence": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "서울",
+                  "부산",
+                  "대구",
+                  "인천",
+                  "광주",
+                  "대전",
+                  "울산",
+                  "세종",
+                  "경기",
+                  "강원",
+                  "충북",
+                  "충남",
+                  "전북",
+                  "전남",
+                  "경북",
+                  "경남",
+                  "제주",
+                  "해외"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Residence"
+          },
+          "occupation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Occupation"
+          },
+          "mbti": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mbti"
+          },
           "categories": {
             "items": {
               "type": "string"
@@ -1684,6 +1868,12 @@
           "id",
           "email",
           "name",
+          "gender",
+          "age",
+          "age_recorded_at",
+          "residence",
+          "occupation",
+          "mbti",
           "categories",
           "tags",
           "survey_completed"

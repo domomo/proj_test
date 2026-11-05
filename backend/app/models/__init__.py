@@ -9,9 +9,16 @@ from app.db.base import Base
 
 class User(Base):
     __tablename__ = 'users'
+    __table_args__ = (CheckConstraint('age BETWEEN 0 AND 120', name='ck_user_age'),)
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(254), unique=True)
     name: Mapped[str] = mapped_column(String(40))
+    gender: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    age: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    age_recorded_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    residence: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    occupation: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    mbti: Mapped[str | None] = mapped_column(String(4), nullable=True)
     password_hash: Mapped[str] = mapped_column(String(256))
     categories: Mapped[list] = mapped_column(JSON, default=list)
     tags: Mapped[list] = mapped_column(JSON, default=list)
