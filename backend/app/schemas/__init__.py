@@ -130,9 +130,17 @@ class ReviewOut(BaseModel):
 
 class EventInput(BaseModel):
     event_id: UUID
-    event_type: Literal['content_view', 'search', 'filter_use', 'recommendation_click', 'recommendation_impression']
-    content_id: int | None = Field(default=None, gt=0)
-    category: Category | None = None
+    type: Literal['page_view', 'search', 'filter_use', 'content_view', 'recommendation_click', 'recommendation_impression', 'bookmark_add', 'bookmark_remove', 'review_submit', 'review_delete', 'survey_submit', 'reservation_checkout_started', 'payment_verified', 'payment_cancelled']
+    occurred_at: datetime
+    session_id: UUID
+    anonymous_id: UUID
+    page: dict = Field(default_factory=dict)
+    props: dict = Field(default_factory=dict)
+    schema_version: int = Field(ge=1, le=100)
+
+
+class EventBatchInput(BaseModel):
+    events: list[EventInput] = Field(min_length=1, max_length=10)
 
 
 class OrderInput(BaseModel):

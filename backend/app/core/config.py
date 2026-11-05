@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     refunds_enabled: bool = False
     culture_api_key: str = ''
     culture_api_base_url: str = 'https://apis.data.go.kr/B553457/nopenapi/rest/publicperformancedisplays'
+    mongo_uri: str = 'mongodb://localhost:27017'
+    mongo_database: str = 'culturepick_events'
+    mongo_collection: str = 'events'
 
     @field_validator('database_url')
     @classmethod

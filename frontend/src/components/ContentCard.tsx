@@ -1,7 +1,8 @@
 import { Bookmark, MapPin, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
-import { api, track } from '../api/client'
+import { api } from '../api/client'
+import { track } from '../api/events'
 import { useSession } from '../context'
 import type { Content } from '../types'
 
@@ -19,6 +20,8 @@ export function ContentCard({ content, recommended = false, onChange }: { conten
     setBusy(true)
     try {
       await api(`/bookmarks/${content.id}`, { method: marked ? 'DELETE' : 'PUT' })
+      track(marked ? 'bookmark_remove' : 'bookmark_add', { content_id: content.id })
+      track(marked ? 'bookmark_remove' : 'bookmark_add', { content_id: content.id })
       setMarked(!marked); s.toast(marked ? '찜을 해제했어요.' : '찜한 콘텐츠에 담았어요.'); s.refresh(); onChange?.()
     } catch (e) { s.toast((e as Error).message) } finally { setBusy(false) }
   }

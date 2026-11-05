@@ -29,6 +29,7 @@ pydantic-settings==2.16.2
 pydantic_core==2.50.2
 Pygments==2.21.0
 PyMySQL==1.2.3
+pymongo==4.16.0
 pytest==9.2.0
 python-dotenv==1.2.4
 PyYAML==6.0.3

@@ -31,9 +31,3 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
   return body as T
 }
 
-export async function track(event_type: string, content_id?: number, category?: string) {
-  if (!getToken()) return
-  try {
-    await api('/history/events', { method: 'POST', body: JSON.stringify({ event_id: crypto.randomUUID(), event_type, content_id, category }) })
-  } catch { /* Analytics failure must not block browsing. */ }
-}

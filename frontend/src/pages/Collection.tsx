@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { Bookmark, Clock3, Sparkles } from 'lucide-react'
 import { useSession } from '../context'
 import { useApi } from '../hooks'
-import { track } from '../api/client'
+import { track } from '../api/events'
 import type { ContentPage } from '../types'
 import { ContentCard } from '../components/ContentCard'
 import { EmptyState, ErrorState, Loading, LoginGate } from '../components/States'
@@ -15,7 +15,7 @@ export function Collection({ kind, embedded = false }: { kind: 'recommendations'
   const config = rec ? { title: '취향이 닿는 발견', text: '좋아하는 문화와 쌓여가는 활동에서, 다음의 설렘을 찾아드려요.', Icon: Sparkles } : kind === 'bookmarks' ? { title: '마음에 담은 문화', text: '언젠가의 문화생활을 위해 모아둔 순간들.', Icon: Bookmark } : { title: '최근 둘러본 문화', text: '잠시 눈길이 머물렀던 문화 콘텐츠를 다시 만나세요.', Icon: Clock3 }
   const result = useApi<ContentPage>(s.user || rec ? `/${kind}${rec ? '?size=24' : ''}` : null)
   const seen = useRef(new Set<number>())
-  useEffect(() => { if (rec && result.data) for (const c of result.data.items) if (!seen.current.has(c.id)) { seen.current.add(c.id); void track('recommendation_impression', c.id) } }, [rec, result.data])
+  useEffect(() => { if (rec && result.data) for (const c of result.data.items) if (!seen.current.has(c.id)) { seen.current.add(c.id); track('recommendation_impression', { content_id: c.id }) } }, [rec, result.data])
   if (!s.ready) return <div className="container page-content"><Loading /></div>
   if (!s.user && !rec) return <div className="container page-content"><LoginGate title={`${kind === 'bookmarks' ? '찜한' : '최근 본'} 문화를 모아보세요`} /></div>
   return <div className={embedded ? 'account-collection' : 'container page-content'}><div className="page-heading">{!embedded && <config.Icon className="page-symbol" size={36} />}<Heading>{config.title}</Heading><p>{config.text}</p></div>

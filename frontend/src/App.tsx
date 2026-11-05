@@ -11,9 +11,12 @@ import { Profile } from './pages/Profile'
 import { Preferences } from './pages/Preferences'
 import { PaymentHistory } from './pages/PaymentHistory'
 import { PaymentResult } from './pages/PaymentResult'
+import { startEventQueue, track } from './api/events'
 
 export default function App() {
   const { pathname } = useLocation()
+  useEffect(() => startEventQueue(), [])
+  useEffect(() => { track('page_view') }, [pathname])
   useEffect(() => { window.scrollTo({ top: 0 }); document.title = 'CulturePick · 취향이 닿는 문화생활' }, [pathname])
   return <SessionProvider><Routes><Route element={<Layout />}>
     <Route index element={<Home />} />

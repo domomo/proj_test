@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ArrowUpRight, Bookmark, CalendarDays, MapPin, Share2, Star, Ticket } from 'lucide-react'
-import { api, track } from '../api/client'
+import { api } from '../api/client'
+import { track } from '../api/events'
 import { checkout } from '../api/payments'
 import { useApi } from '../hooks'
 import { useSession } from '../context'
@@ -25,7 +26,7 @@ export function Detail() {
   const [payBusy, setPayBusy] = useState(false)
   const [failed, setFailed] = useState(false)
   const [error, setError] = useState('')
-  useEffect(() => { if (result.data && s.user && view.current !== `${id}-${s.user.id}`) { view.current = `${id}-${s.user.id}`; void track('content_view', result.data.id) } }, [result.data, id, s.user])
+  useEffect(() => { if (result.data && s.user && view.current !== `${id}-${s.user.id}`) { view.current = `${id}-${s.user.id}`; track('content_view', { content_id: result.data.id }) } }, [result.data, id, s.user])
   useEffect(() => { orderKey.current = crypto.randomUUID(); setFailed(false); setQuantity(1); setError('') }, [id])
   useEffect(() => { const own = reviews.data?.find(r => r.user_id === s.user?.id); setBody(own?.body || ''); setRating(own?.rating || 5) }, [reviews.data, s.user?.id])
   if (result.loading) return <div className="container page-content"><Loading /></div>

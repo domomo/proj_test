@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, Search, SlidersHorizontal, X } from 'lucide-reac
 import { CATEGORIES } from '../types'
 import type { ContentPage } from '../types'
 import { useApi } from '../hooks'
-import { track } from '../api/client'
+import { track } from '../api/events'
 import { ContentCard } from '../components/ContentCard'
 import { EmptyState, ErrorState, Loading } from '../components/States'
 
@@ -15,7 +15,7 @@ export function Explore() {
   const input = useRef<HTMLInputElement>(null)
   const apiParams = new URLSearchParams(params); apiParams.delete('focus'); apiParams.set('size', '12')
   const result = useApi<ContentPage>(`/contents?${apiParams}`)
-  const update = (key: string, value: string) => { const next = new URLSearchParams(params); value ? next.set(key, value) : next.delete(key); next.delete('page'); setParams(next); if (key !== 'q') void track('filter_use', undefined, key === 'category' ? value || undefined : undefined) }
+  const update = (key: string, value: string) => { const next = new URLSearchParams(params); value ? next.set(key, value) : next.delete(key); next.delete('page'); setParams(next); if (key !== 'q') track('filter_use', { filter: key, value }) }
   useEffect(() => { setQuery(params.get('q') || ''); if (params.get('focus') === 'search') input.current?.focus() }, [params])
   const page = Number(params.get('page') || 1)
   const activeCount = ['region', 'free_only', 'from_date', 'to_date'].filter(k => params.has(k)).length
